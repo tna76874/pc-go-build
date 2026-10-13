@@ -45,7 +45,7 @@ jobs:
       - name: Build Go binary
         run: |
           mkdir -p dist
-          go build -v -o dist/proxy-chaine-go-${{ matrix.name }}${{ matrix.ext }} main.go
+          go build -v -o dist/proxy-chaine-go-${{ matrix.name }}${{ matrix.ext }} .
         env:
           GOOS: ${{ matrix.GOOS }}
           GOARCH: ${{ matrix.GOARCH }}
@@ -57,7 +57,7 @@ jobs:
           files: dist/proxy-chaine-go-*
           tag_name: latest
           name: "Latest Build"
-          body: "Automatischer Build bei jedem Push."
+          body: "Automatischer Build"
           make_latest: true
           overwrite: true
         env:
