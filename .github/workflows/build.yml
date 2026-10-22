@@ -39,25 +39,45 @@ jobs:
         with:
           go-version: '1.27.1'
 
+      - name: Set up .NET (for WiX v4 MSI build)
+        if: matrix.GOOS == 'windows'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install WiX v4 Tool
+        if: matrix.GOOS == 'windows'
+        run: dotnet tool install --global wix
+
       - name: Tidy dependencies
         run: go mod tidy
 
       - name: Build Go binary
         run: |
           mkdir -p dist
-          go build -v -o dist/proxy-chaine-go-${{ matrix.name }}${{ matrix.ext }} .
+          # Build binary directly into root as expected by installer.wxs
+          go build -v -o proxy-chain${{ matrix.ext }} .
+          # Copy to dist with standard naming convention
+          cp proxy-chain${{ matrix.ext }} dist/proxy-chain-${{ matrix.name }}${{ matrix.ext }}
         env:
           GOOS: ${{ matrix.GOOS }}
           GOARCH: ${{ matrix.GOARCH }}
           CGO_ENABLED: 0
 
+      - name: Build MSI Installer (Windows only)
+        if: matrix.GOOS == 'windows'
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          # Build MSI using the wix tool and installer.wxs
+          wix build installer.wxs -o dist/proxy-chain-${{ matrix.name }}.msi
+
       - name: Create or Update Latest Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/proxy-chaine-go-*
+          files: dist/proxy-chain-*
           tag_name: latest
           name: "Latest Build"
-          body: "Automatischer Build"
+          body: "Automatischer Build (inkl. MSI-Paket)"
           make_latest: true
           overwrite: true
         env:
