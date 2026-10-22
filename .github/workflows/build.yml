@@ -80,9 +80,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/proxy-chain-*.exe
-            dist/proxy-chain-*.linux-*
-            dist/proxy-chain-*.msi
+            dist/proxy-chain-linux-amd64
+            dist/proxy-chain-windows-amd64.exe
+            dist/proxy-chain-windows-amd64.msi
           tag_name: latest
           name: "Latest Build"
           body: "Automatischer Build (inkl. MSI-Paket)"
