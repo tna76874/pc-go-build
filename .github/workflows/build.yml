@@ -70,6 +70,8 @@ jobs:
           export PATH="$PATH:$HOME/.dotnet/tools"
           # Build MSI using the wix tool and installer.wxs
           wix build installer.wxs -o dist/proxy-chain-${{ matrix.name }}.msi
+        env:
+          WIX_ACCEPT_OSMF_EULA: "yes"
 
       - name: Create or Update Latest Release
         uses: softprops/action-gh-release@v2
