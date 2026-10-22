@@ -11,18 +11,24 @@ permissions:
 jobs:
   build:
     name: Build and Release (${{ matrix.name }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
     strategy:
+      fail-fast: false
       matrix:
         include:
           - GOOS: linux
             GOARCH: amd64
             name: linux-amd64
             ext: ""
+            runner: ubuntu-latest
           - GOOS: windows
             GOARCH: amd64
             name: windows-amd64
             ext: ".exe"
+            runner: windows-latest
 
     steps:
       - name: Checkout external repository
@@ -47,7 +53,7 @@ jobs:
 
       - name: Install WiX v4 Tool
         if: matrix.GOOS == 'windows'
-        run: dotnet tool install --global wix
+        run: dotnet tool install --global wix --version 4.0.5
 
       - name: Tidy dependencies
         run: go mod tidy
@@ -68,8 +74,7 @@ jobs:
         if: matrix.GOOS == 'windows'
         run: |
           export PATH="$PATH:$HOME/.dotnet/tools"
-          # Build MSI using the wix tool with explicit EULA acceptance flag
-          wix build -acceptEula wix7 installer.wxs -o dist/proxy-chain-${{ matrix.name }}.msi
+          wix build -arch x64 installer.wxs -o dist/proxy-chain-${{ matrix.name }}.msi
 
       - name: Create or Update Latest Release
         uses: softprops/action-gh-release@v2
