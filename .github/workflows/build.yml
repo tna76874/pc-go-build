@@ -68,10 +68,8 @@ jobs:
         if: matrix.GOOS == 'windows'
         run: |
           export PATH="$PATH:$HOME/.dotnet/tools"
-          # Build MSI using the wix tool and installer.wxs
-          wix build installer.wxs -o dist/proxy-chain-${{ matrix.name }}.msi
-        env:
-          WIX_ACCEPT_OSMF_EULA: "yes"
+          # Build MSI using the wix tool with explicit EULA acceptance flag
+          wix build -acceptEula wix7 installer.wxs -o dist/proxy-chain-${{ matrix.name }}.msi
 
       - name: Create or Update Latest Release
         uses: softprops/action-gh-release@v2
